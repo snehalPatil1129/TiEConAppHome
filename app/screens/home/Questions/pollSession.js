@@ -1,48 +1,83 @@
 import React from 'react';
-import { View, ScrollView, TouchableOpacity, Image, Alert,Dimensions, Keyboard } from 'react-native';
-import { RkButton, RkText, RkChoice, RkModalImg, RkCard, RkTextInput, RkAvoidKeyboard, RkStyleSheet, RkTabView, RkTheme, RkChoiceGroup } from 'react-native-ui-kitten';
-import { FontAwesome } from '../../assets/icons';
-import { GradientButton } from '../../components/gradientButton';
-import { scale, scaleModerate, scaleVertical } from '../../utils/scale';
+import { Text, View,ScrollView ,Label} from 'native-base';
+import { StyleSheet, FlatList, TouchableOpacity,Keyboard, Alert,AsyncStorage } from 'react-native';
+import { RkComponent, RkTheme, RkText, RkAvoidKeyboard,RkButton, RkCard, RkChoice,RkTextInput,RkChoiceGroup } from 'react-native-ui-kitten';
 import { NavigationActions } from 'react-navigation';
-import { Container, Content, Footer,CheckBox, Header, Title, Button, Icon, Tabs, Tab, Text, Right, Left, Body, TabHeading, Label } from "native-base";
-import { TabNavigator, TabView } from 'react-navigation'
-import firebase from '../../config/firebase'
+
+import { Service } from '../../../services';
+import ReactMoment from 'react-moment';
+import Moment from 'moment';
+import { Avatar } from '../../../components';
+import firebase from '../../../config/firebase'
 
 var firestoreDB = firebase.firestore();
 let ShareInput = [];
 let AnswerInput = [];
 let QueArray = [];
-export class Questions extends React.Component {
-    static navigationOptions = ({ navigation }) => ({
-        title: 'Questions'.toUpperCase(),
-    });
+let form  = [];
+export default class PollSession extends RkComponent {
 
     constructor(props) {
         super(props);
         this.state = {
-            currentTab: 'Home',
-            queForm: []
-        };
+            queForm : [],
+            askedBy : ""
+        }
         this.onFormSelectValue = this.onFormSelectValue.bind(this);
-        this.onChange = this.onChange.bind(this);
-
-        this.onSubmit = this.onSubmit.bind(this);
     }
-    componentWillMount() {
-        let comRef = this;
-        firestoreDB.collection("QuestionsForm").doc("fzEbwY1XHROtpw7HF8du").get().then(function (doc) {
-            let form = doc.data();
-            comRef.setState({
-                queForm: form.Questions
+    componentWillMount(){
+        this.getForm();
+    
+        let thisRef =this;
+        AsyncStorage.getItem("USER_DETAILS").then((userDetails)=>{
+          let user = JSON.parse(userDetails)
+          let Name = user.firstName + " " + user.lastName;
+            thisRef.setState({
+                askedBy : Name
             })
+           // thisRef.fetchForm();
+         })
+         .catch(err => {
+           console.warn('Errors');
+         });
+
+         
+         
+      }
+
+    getForm = () => {
+        let thisRef =this;
+        firestoreDB.collection("QuestionsForm").doc("fzEbwY1XHROtpw7HF8du").get().then(function (doc) {
+             form = doc.data();
+             thisRef.setState({
+                queForm : form.Questions
+            })
+             console.log("form",form);
         }).catch(function (error) {
             console.log("Error getting document:", error);
         });
     }
+    onSubmit = () => {
+        console.log('event',this.state);
+        let compRef = this; 
+        firestoreDB.collection('SessionPolls').add({
+            Responses : compRef.state.Question,
+            pollBy : compRef.state.askedBy
+        })
+        .then(function(docRef) {
+           compRef.setState({
+               Question : ""
+           })
+        })
+        .catch(function(error) {
+            console.error("Error adding document: ", error);
+        });
 
-    onFormSelectValue(queForm) {
+    }
+    onFormSelectValue = (queForm) => {
+        console.log("FORMNEW" ,this.state.queForm);
         ShareInput = this.state.queForm.map(Fitem => {
+
             QueArray.push({Question : Fitem.QuestionTitle , Answer: ""});
             return (
                 <View >
@@ -54,7 +89,7 @@ export class Questions extends React.Component {
         return ShareInput;
     }
 
-    RenderAnswerField(item) {
+    RenderAnswerField = (item) => {
         if (item.AnswerFeild == "Input Text") {
             AnswerInput:
             return (
@@ -78,7 +113,7 @@ export class Questions extends React.Component {
         }
         return AnswerInput;
     }
-    onMultiChoice(value, id) {
+    onMultiChoice = (value, id) => {
         let MultiChoice = value.map(fItem => {
             return (
                 <TouchableOpacity  choiceTrigger >
@@ -96,7 +131,7 @@ export class Questions extends React.Component {
     }
 
 
-    onCheckBox(value, id) {
+    onCheckBox = (value, id)  => {
         let CheckBox1 = value.map(fItem => {
             return (
                 // <TouchableOpacity choiceTrigger style={{marginTop : 1}}>
@@ -111,47 +146,66 @@ export class Questions extends React.Component {
         return CheckBox1;
     }
 
-    onChange(text, id) {
+    onChange = (text, id) => {
         QueArray[id].Answer = text;
         console.log('value', QueArray);
     }
-    // onClick(text,id){
-    //     QueArray[id].Answer = text;
-    //     console.log('value', QueArray);
-    // }
-    onSubmit(){
-        let alertMsg = false;
-        QueArray.forEach(fItem => {
-            if(fItem.Answer == ""){
-                alertMsg = true;
-            }
-            else{
-            
-                console.log('yes',QueArray);
-            }
-        })
-        if(alertMsg == true)
-        {
-            Alert.alert('please answer all questions');
-            //alert('please answer all questions');
-        }
-        console.log('yes',QueArray);
-
-    }
+    
     render() {
         return (
-            <Container>
-                <ScrollView style={styles.root}>
+            
+            <RkAvoidKeyboard
+                onStartShouldSetResponder={(e) => true}
+                onResponderRelease={(e) => Keyboard.dismiss()}>
+            
                     {this.onFormSelectValue(this.state.queForm)}
                     <RkButton rkType='dark' 
                      style={{  alignSelf : 'center' ,width : 340  }}
                     onPress= {() => this.onSubmit()}>SUBMIT</RkButton>
-                </ScrollView >
-            </Container>
-        )
+            
+            </RkAvoidKeyboard>
+             
+);
     }
 }
 
-let styles = RkStyleSheet.create(theme => ({
-
-}));
+/** * Component Styling Details */
+// const styles = StyleSheet.create ({
+//    header : {
+//        flex : 1,
+//        flexDirection : 'column'
+//    },
+//    mainHeader:{
+//        flex : 1,
+//        flexDirection : 'row',
+//        justifyContent: 'space-between',
+//    },
+//    roomName:{
+//        fontSize: 15,
+//        color : '#C9C9C9'
+//    },
+//    headerText : {
+//        fontWeight: 'bold',
+//        fontSize: 25
+//    },
+//    actionBtn : {
+//        width: 85,
+//        height: 20,
+//        alignSelf: 'flex-end'
+//    },
+//    avatar : {
+//        backgroundColor : '#C0C0C0',
+//        width: 40,
+//        height: 40,
+//        borderRadius: 20,
+//        textAlign: 'center',
+//        fontSize: 20,
+//        textAlignVertical: 'center' ,
+//        marginRight:5
+//    },
+//    speakerName: {
+//        textAlignVertical: 'center',
+//        fontStyle:'italic',
+//        fontSize: 15
+//    }
+// });

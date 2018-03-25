@@ -8,8 +8,9 @@ import { NavigationActions } from 'react-navigation';
 import { Container, Content, Footer, Header, Title, Button, Icon, Tabs, Tab, Text, Right, Left, Body, TabHeading } from "native-base";
 import { onSignOut } from "../../auth";
 import * as Screens from '../index';
-import { Contacts, Chat, ProgramsTab, ConnectTab } from  '../index';
+import { Contacts, Chat, ProgramsTab, ConnectTab,QueTab} from  '../index';
 import { TabNavigator, TabView } from 'react-navigation'
+//import {queTab} from './queTab'
 
 export class HomePage extends React.Component {
   static navigationOptions = ({navigation}) => ({
@@ -29,9 +30,12 @@ export class HomePage extends React.Component {
         <Tabs tabBarPosition="bottom" style={{ elevation: 3 }}>
           <Tab
             heading={
-              <TabHeading style={{ flexDirection: 'column' }}><Icon name="calendar"/><Text>Program</Text></TabHeading>
+              // <TabHeading style={{ flexDirection: 'column' }}><Icon name="calendar"/><Text>Program</Text></TabHeading>
+              <TabHeading style={{ flexDirection: 'column' }}><Icon name="calendar"/><Text>Questions</Text></TabHeading>
+
             }
           >
+          {/* <QueTab navigation={this.props.navigation}/> */}
             <ProgramsTab navigation={this.props.navigation}/>
           </Tab>
           <Tab
