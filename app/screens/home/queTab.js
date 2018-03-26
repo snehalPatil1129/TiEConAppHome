@@ -3,9 +3,9 @@ import { RkAvoidKeyboard, RkStyleSheet } from 'react-native-ui-kitten';
 import { Tabs, Tab, Icon, Text, TabHeading } from "native-base";
 import { AsyncStorage } from "react-native";
 
-import AskQuestions from './Questions/askQuestions';
-// import Survey from './Questions/Survey';
+import AskQuestion from './Questions/AskQuestion';
 import PollSession from './Questions/PollSession';
+
 export  class QueTab extends React.Component {
   static navigationOptions = {
     title: 'Ask Questions'.toUpperCase()
@@ -41,7 +41,7 @@ export  class QueTab extends React.Component {
             <TabHeading><Icon name="question"/><Text>Ask Questions</Text></TabHeading>
           }
         >
-         <AskQuestions  navigation={this.props.navigation} sessionId = {this.state.sessionId}  />
+         <AskQuestion  navigation={this.props.navigation} sessionId = {this.state.sessionId}  />
          
          
         </Tab>

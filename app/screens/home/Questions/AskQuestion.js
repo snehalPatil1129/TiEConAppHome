@@ -11,7 +11,7 @@ import { Avatar } from '../../../components';
 import firebase from '../../../config/firebase'
 
 var firestoreDB = firebase.firestore();
-export default class AskQuestions extends RkComponent {
+export default class AskQuestion extends RkComponent {
 
     constructor(props) {
         super(props);

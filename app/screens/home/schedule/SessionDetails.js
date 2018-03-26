@@ -23,10 +23,10 @@ export class SessionDetails extends Component {
             Session Details here
         </Text>
         <RkButton rkType='dark' style={{ flexDirection : 'row', width: 200 ,marginBottom : 5}}
-          onPress={() => this.props.navigation.navigate('Feedback', { sessionId: this.state.sessionId })}
+          onPress={() => this.props.navigation.navigate('Survey', { sessionId: this.state.sessionId })}
         >Give Feedback </RkButton>
         <RkButton rkType='success' style={{ flexDirection : 'row', width: 200}}
-          onPress={() => this.props.navigation.navigate('queTab', { sessionId: this.state.sessionId })}
+          onPress={() => this.props.navigation.navigate('QueTab', { sessionId: this.state.sessionId })}
         >Ask Questions </RkButton>
 
         

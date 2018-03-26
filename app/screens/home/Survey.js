@@ -5,19 +5,21 @@ import { StyleSheet, FlatList, TouchableOpacity, Keyboard, Alert, AsyncStorage }
 import { RkComponent, RkTheme,RkStyleSheet, RkText, RkAvoidKeyboard, RkButton, RkCard, RkChoice, RkTextInput, RkChoiceGroup } from 'react-native-ui-kitten';
 import { NavigationActions } from 'react-navigation';
 
-import { Service } from '../../../services';
+//import { Service } from '../../../services';
 import ReactMoment from 'react-moment';
 import Moment from 'moment';
-import { Avatar } from '../../../components';
-import firebase from '../../../config/firebase'
+//import { Avatar } from '../../../components';
+import firebase from './../../config/firebase'
 
 var firestoreDB = firebase.firestore();
-let ShareInput = [];
+let ShareInput = []; 
 let AnswerInput = [];
 let QueArray = [];
 let form = [];
-export default class Survey extends RkComponent {
-
+export class Survey extends RkComponent {
+    static navigationOptions = {
+        title: 'Survey'.toUpperCase()
+      };
     constructor(props) {
         super(props);
         this.state = {

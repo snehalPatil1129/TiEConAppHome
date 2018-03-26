@@ -84,15 +84,15 @@ export const MainRoutes = [
         children: []
       },
       {
-        id: 'queTab',
+        id: 'QueTab',
         title: 'Ask Questions',
         screen: Screens.QueTab,
         children: []
       },
       {
-        id: 'Feedback',
-        title: 'Feedback',
-        screen: Screens.Feedback,
+        id: 'Survey',
+        title: 'Survey',
+        screen: Screens.Survey,
         children: []
       }
     ]
