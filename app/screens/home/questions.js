@@ -86,7 +86,7 @@ export class Questions extends React.Component {
                         <RkChoice rkType='radio'
                         style={{backgroundColor : '#adafb2'}}
                         id={id} value={fItem.Value}
-                        onPress={(id,value) => console.log('id: ', id,value)}  />
+                         />
                         <Text>{fItem.Value}</Text>
                     </View>
                 </TouchableOpacity>
@@ -143,7 +143,7 @@ export class Questions extends React.Component {
             <Container>
                 <ScrollView style={styles.root}>
                     {this.onFormSelectValue(this.state.queForm)}
-                    <RkButton rkType='dark' 
+                    <RkButton rkType='success'
                      style={{  alignSelf : 'center' ,width : 340  }}
                     onPress= {() => this.onSubmit()}>SUBMIT</RkButton>
                 </ScrollView >

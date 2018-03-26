@@ -10,7 +10,7 @@ import { onSignOut } from "../../auth";
 import * as Screens from '../index';
 import { Contacts, Chat, ProgramsTab, ConnectTab,QueTab} from  '../index';
 import { TabNavigator, TabView } from 'react-navigation'
-//import {queTab} from './queTab'
+import EventCal from './schedule/EventCal';
 
 export class HomePage extends React.Component {
   static navigationOptions = ({navigation}) => ({
@@ -31,12 +31,11 @@ export class HomePage extends React.Component {
           <Tab
             heading={
               // <TabHeading style={{ flexDirection: 'column' }}><Icon name="calendar"/><Text>Program</Text></TabHeading>
-              <TabHeading style={{ flexDirection: 'column' }}><Icon name="calendar"/><Text>Questions</Text></TabHeading>
+              <TabHeading style={{ flexDirection: 'column' }}><Icon name="calendar"/><Text>Program</Text></TabHeading>
 
             }
           >
-          {/* <QueTab navigation={this.props.navigation}/> */}
-            <ProgramsTab navigation={this.props.navigation}/>
+            <EventCal navigation={this.props.navigation}/>
           </Tab>
           <Tab
             heading={

@@ -15,10 +15,11 @@ export default class AskQuestions extends RkComponent {
 
     constructor(props) {
         super(props);
-        //console.log('props',props.userName)
+       //console.log('askProps',this.props.UserName)
         this.state = {
             Question : "",
-            askedBy : ""
+            askedBy : "",
+            sessionId :this.props.sessionId 
         }
     }
     componentWillMount(){
@@ -39,24 +40,38 @@ export default class AskQuestions extends RkComponent {
     }
 
     onSubmit = () => {
-        console.log('event',this.state);
         let compRef = this; 
-        firestoreDB.collection('AskedQuestions').add({
-            Question : compRef.state.Question,
-            askedBy : compRef.state.askedBy
-        })
-        .then(function(docRef) {
-           compRef.setState({
-               Question : ""
-           })
-        })
-        .catch(function(error) {
-            console.error("Error adding document: ", error);
-        });
+         let que = this.state.Question;
+         let user = this.state.askedBy;
+         let sessionId = this.state.sessionId;
+         if(que.length !== 0){
+            firestoreDB.collection('AskedQuestions')
+            .add({
+                Question : que ,
+                askedBy : user,
+                SessionId: sessionId,
+                date : new Date()
+            })
+            .then(function(docRef) {
+               compRef.setState({
+                   Question : ""
+               })
+               Alert.alert("Question submitted successfully");
+            })
+            .catch(function(error) {
+                console.error("Error adding document: ", error);
+            });
+         }
+         else{
+             Alert.alert("Please fill the question field...");
+         }
+    
+       
 
     }
+   
     onChange = (text) => {
-        console.log('que',text);
+       // console.log('que',text);
         let Question = text;
         this.setState({
             Question : Question
@@ -71,7 +86,7 @@ export default class AskQuestions extends RkComponent {
                 <View>
                     <RkText> Enter your question below :   </RkText>
                     <RkTextInput type="text" placeholder="Question" value={this.state.Question} name="Question" onChangeText={(text) => this.onChange(text)} />
-                    <RkButton rkType='success' style={{ alignSelf: 'center', width: 340 }} onPress={() => this.onSubmit()}> Submit </RkButton>
+                    <RkButton rkType='success' style={{ alignSelf: 'center', width: 340  }} onPress={() => this.onSubmit()}> Submit </RkButton>
                 </View>
             </RkAvoidKeyboard>
 );
