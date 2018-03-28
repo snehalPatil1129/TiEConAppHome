@@ -1,7 +1,11 @@
 import React, {Component} from 'react';
-import {Text, View,TouchableOpacity, StyleSheet} from 'react-native';
-import { RkButton } from 'react-native-ui-kitten';
-import {NavigationActions} from 'react-navigation';
+import {Text, View,TouchableOpacity, StyleSheet, AsyncStorage,ScrollView} from 'react-native';
+import { RkButton,RkStyleSheet,RkText,RkCard } from 'react-native-ui-kitten';
+import {Icon,Container, Tabs, Tab,TabHeading } from 'native-base';
+import {NavigationActions,TabNavigator, TabView } from 'react-navigation';
+import {Service} from '../../../services';
+import Moment from 'moment';
+
 export class SessionDetails extends Component {
   static navigationOptions = {
     title: 'Session Details'.toUpperCase()
@@ -9,36 +13,146 @@ export class SessionDetails extends Component {
 
   constructor(props) {
     super(props);
-    console.log('props',this.props.navigation.state.params.session.key);
+    this.sessionDetails =  this.props.navigation.state.params.session,
     this.state= {
-      sessionId : this.props.navigation.state.params.session.key
+      speakerDetails : this.sessionDetails.speakersDetails,
+      sessionId : this.props.navigation.state.params.session.key,
+      user : "",
+      description :this.sessionDetails.description,
+      sessionName :  this.sessionDetails.eventName,
+      sesssionDuration :this.sessionDetails.duration,
+      sessionVenue : this.sessionDetails.room,
+      showSurveyButton : false,
+      startTime : this.sessionDetails.startTime,
+      endTime : this.sessionDetails.endTime,
+
     }
-
   }
-
-  render() {
+  componentWillMount(){
+    Service.getCurrentUser((userDetails)=>{
+        this.setState({
+          user :  userDetails.firstName + " " + userDetails.lastName
+        });
+        this.checkSurveyResponse();
+    });
+}
+  
+ checkSurveyResponse = () => {
+  Service.getDocRef("SessionSurvey")
+  .where("SessionId", "==", this.state.sessionId)
+  .where("ResponseBy", "==", this.state.user)
+  .get().then((snapshot) => {
+      if (snapshot.size == 0) {
+        this.setState({
+          showSurveyButton : true
+        })
+      }
+      this.getSurveyAccess();
+  });
+}
+getSurveyAccess = () => {
+  if (this.state.showSurveyButton == true) {
     return (
-      <View style={styles.sessionView}>
-        <Text>
-            Session Details here
-        </Text>
-        <RkButton rkType='dark' style={{ flexDirection : 'row', width: 200 ,marginBottom : 5}}
-          onPress={() => this.props.navigation.navigate('Survey', { sessionId: this.state.sessionId })}
-        >Give Feedback </RkButton>
-        <RkButton rkType='success' style={{ flexDirection : 'row', width: 200}}
-          onPress={() => this.props.navigation.navigate('QueTab', { sessionId: this.state.sessionId })}
-        >Ask Questions </RkButton>
+      <RkButton rkType='dark' style={{ alignSelf: 'center', flexDirection: 'row', width: 340, marginBottom: 5 }}
+      onPress={() => this.props.navigation.navigate('Survey', { sessionId: this.state.sessionId })}
+    >Give Feedback </RkButton> 
+    );
+  }
+  else {
+    return null;
+  }
+}
+getDuration = ()=>{
+  let endTime = Moment(this.state.endTime).format("hh:mm A");
+  let startTime = Moment(this.state.startTime).format("hh:mm A");
+  let sessionDate = Moment(this.state.startTime).format("DD MMM,YYYY");
+  return (<Text>{startTime} - {endTime}   {sessionDate} </Text>);
+}
+getSpeakers = () => {
+  return this.state.speakerDetails
+  .map((speaker, index) => {
+      return (
+        <View style={[styles.row, styles.heading]}>
+          <RkText style={{ fontSize: 15 }}><Icon name="ios-people-outline" /></RkText>
+          <Text style={[styles.text]} rkType='header6'> {speaker.firstName + ' ' + speaker.lastName}</Text>
+        </View>
+      )
+  });
+}
+  render() {
+    const speakers = this.getSpeakers();
+    const surveyButton = this.getSurveyAccess();
+    return (
+      <ScrollView style={styles.root}>
+        <RkCard style={{ marginLeft: 5, marginRight: 5 }}>
+          <View style={styles.section}>
+            <View style={[styles.row, styles.heading]}>
+              <RkText style={{ fontSize: 20 }} rkType='header6 primary'>{this.state.sessionName}</RkText>
+            </View>
+          </View>
 
-        
+          <View style={styles.subSection}>
+            <View style={[styles.row, styles.heading]}>
+              <RkText style={{ fontSize: 15 }}><Icon name="ios-calendar-outline" /> </RkText>
+              <Text style={[styles.text]} rkType='header6' > {this.getDuration()} </Text>
+            </View>
 
-      </View>
+            <View style={[styles.row, styles.heading]}>
+              <RkText style={{ fontSize: 15 }}><Icon name="ios-locate-outline" /></RkText>
+              <Text style={[styles.text]} rkType='header6'>{this.state.sessionVenue}</Text>
+            </View>
+            <View >
+              {speakers}
+            </View>
+          </View>
+
+          <View style={styles.descSection}>
+          <View style={[styles.row, styles.heading]}>
+            <RkText rkType='header6'>Summary: </RkText>
+          </View>
+          <View style={[styles.row]}>
+            <Text style={[styles.text]}>{this.state.description}</Text>
+          </View>
+          </View>
+        </RkCard>
+        <View style={{ alignSelf: 'center', width: 400, marginBottom: 3,marginTop : 125 }}>
+          {surveyButton}
+          <RkButton rkType='success' style={{ alignSelf: 'center', flexDirection: 'row', width: 340 }}
+            onPress={() => this.props.navigation.navigate('QueTab', { sessionId: this.state.sessionId })}
+          >Ask Questions </RkButton>
+        </View>
+     </ScrollView>
     )
   }
 }
 
-const styles = StyleSheet.create({
-  sessionView: {
-    flex: 1,
-    flexDirection: 'column'
+let styles = RkStyleSheet.create(theme => ({
+  root: {
+    backgroundColor: theme.colors.screen.base
+  },
+  section: {
+    marginVertical: 25,
+    marginBottom : 10
+  },
+  descSection : {
+    marginVertical: 25,
+    marginBottom : 10,
+    marginTop : 5
+  },
+  subSection: {
+    marginTop : 5,
+    marginBottom :10
+  },
+  row: {
+    flexDirection: 'row',
+    paddingHorizontal: 17.5,
+    borderColor: theme.colors.border.base,
+    alignItems: 'center'
+  },
+  text :{
+    marginBottom : 5,
+    fontSize : 15,
+    marginLeft: 20
   }
-});
+}));
+
