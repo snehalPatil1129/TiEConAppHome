@@ -1,7 +1,7 @@
 import React from 'react';
 import {ScrollView} from 'react-native';
 import { Text, View, Icon, Container, Label } from 'native-base';
-import { StyleSheet, FlatList, TouchableOpacity, Keyboard, Alert, AsyncStorage } from 'react-native';
+import { StyleSheet, FlatList, TouchableOpacity, Keyboard, Alert, AsyncStorage,ActivityIndicator } from 'react-native';
 import { RkComponent, RkTheme,RkStyleSheet, RkText, RkAvoidKeyboard, RkButton, RkCard, RkChoice, RkTextInput, RkChoiceGroup } from 'react-native-ui-kitten';
 import { NavigationActions } from 'react-navigation';
 import ReactMoment from 'react-moment';
@@ -11,13 +11,13 @@ var firestoreDB = firebase.firestore();
 
 export class Questions extends React.Component {
     static navigationOptions = {
-        title: 'Survey'.toUpperCase()
+        title: 'Questions'.toUpperCase()
       };
     constructor(props) {
         super(props);
         this.navigation = this.props.navigation;
         this.state = {
-            queForm: [],
+            questionsForm: [],
             userId: this.props.userId,
             responses : [],
             queArray : []
@@ -33,7 +33,7 @@ export class Questions extends React.Component {
         firestoreDB.collection("QuestionsForm").doc("fzEbwY1XHROtpw7HF8du").get().then(function (doc) {
             let form = doc.data();
             thisRef.setState({
-                queForm: form.Questions
+                questionsForm: form.Questions
             })
         }).catch(function (error) {
             console.log("Error getting document:", error);
@@ -63,8 +63,8 @@ export class Questions extends React.Component {
             console.error("Error adding document: ", error);
         });
     }
-    onFormSelectValue = (queForm) => {
-        let renderQuestions = this.state.queForm.map(Fitem => {
+    onFormSelectValue = (questionsForm) => {
+        let renderQuestions = this.state.questionsForm.map(Fitem => {
             this.state.queArray.push({ Question: Fitem.QuestionTitle, Answer: new Set() });
             return (
                     <View style={{ marginLeft: 10 ,marginBottom :10}}>
@@ -145,16 +145,17 @@ export class Questions extends React.Component {
         this.state.queArray[Qid].Answer = text;
     }
     render() {
-        if (this.state.queForm.length == 0 ){
+        if (this.state.questionsForm.length == 0 ){
             return (
-                <Text style={{fontSize : 20 ,alignSelf: 'center' ,marginTop : 200}} ><Icon name="ios-sync"/>  Loading... </Text>
+                <ActivityIndicator size="small" color="#00ff00" />
+                // <Text style={{fontSize : 20 ,alignSelf: 'center' ,marginTop : 200}} ><Icon name="ios-sync"/>  Loading... </Text>
             );
         }
         else{
             return (
                 <Container>
                     <ScrollView>
-                    {this.onFormSelectValue(this.state.queForm)}
+                    {this.onFormSelectValue(this.state.questionsForm)}
                     <RkButton rkType='success'
                         style={{ alignSelf: 'center', width: 340 ,marginTop: 3, marginBottom : 3 }}
                         onPress={() => this.onSubmitResponse()}>SUBMIT</RkButton>
